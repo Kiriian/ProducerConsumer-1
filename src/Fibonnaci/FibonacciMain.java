@@ -1,5 +1,6 @@
 package Fibonnaci;
 
+import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
@@ -17,8 +18,10 @@ import java.util.logging.Logger;
 public class FibonacciMain
 {
 
+    private static Scanner sc = new Scanner(System.in);
     private static BlockingQueue<Integer> s1 = new ArrayBlockingQueue<>(12);
     private static BlockingQueue<Long> s2 = new ArrayBlockingQueue<>(12);
+    private static ConsumerThread c1 = new ConsumerThread();
 
     public static void main(String[] args)
     {
@@ -34,31 +37,53 @@ public class FibonacciMain
         s1.add(37);
         s1.add(42);
 
-        ProducerThread p1 = new ProducerThread();
-        ProducerThread p2 = new ProducerThread();
-        ProducerThread p3 = new ProducerThread();
-        ProducerThread p4 = new ProducerThread();
-        ConsumerThread c1 = new ConsumerThread();
-        
-        p1.start();
-        p2.start();
-        p3.start();
-        p4.start();
-        
-        try
-        {
-            p1.join();
-            p2.join();
-            p3.join();
-            p4.join();
-            c1.start();
-        } catch (InterruptedException ex)
-        {
-            Logger.getLogger(FibonacciMain.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        
+//        ProducerThread p1 = new ProducerThread();
+//        ProducerThread p2 = new ProducerThread();
+//        ProducerThread p3 = new ProducerThread();
+//        ProducerThread p4 = new ProducerThread();
+//        ConsumerThread c1 = new ConsumerThread();
+//        p1.start();
+//        p2.start();
+//        p3.start();
+//        p4.start();
+//        
+//        try
+//        {
+//            p1.join();
+//            p2.join();
+//            p3.join();
+//            p4.join();
+//            c1.start();
+//        } catch (InterruptedException ex)
+//        {
+//            Logger.getLogger(FibonacciMain.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        int numberOfThreads = sc.nextInt();
+        numberOfThreads(numberOfThreads);
+        c1.start();
 
+    }
+
+    public static void numberOfThreads(int numberOfThreads)
+    {
+        ProducerThread[] threads;
+
+        threads = new ProducerThread[numberOfThreads];
+
+        for (int i = 0; i < threads.length; i++)
+        {
+            threads[i] = new ProducerThread();
+            threads[i].start();
+
+            try
+            {
+                threads[i].join();
+
+            } catch (InterruptedException ex)
+            {
+                Logger.getLogger(FibonacciMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     private static long fib(long n)
@@ -95,17 +120,12 @@ public class FibonacciMain
 
     public static class ConsumerThread extends Thread
     {
+
         int totalSum = 0;
+
         @Override
         public void run()
         {
-//            try
-//            {
-//                Thread.sleep(10000);
-//            } catch (InterruptedException ex)
-//            {
-//                Logger.getLogger(FibonacciMain.class.getName()).log(Level.SEVERE, null, ex);
-//            }
             try
             {
                 while (!s2.isEmpty())
@@ -115,9 +135,9 @@ public class FibonacciMain
                     totalSum = totalSum + number;
                     System.out.println(number);
                 }
-                
+
                 System.out.println("Total sum: " + totalSum);
-                
+
             } catch (InterruptedException ex)
             {
                 Logger.getLogger(FibonacciMain.class.getName()).log(Level.SEVERE, null, ex);
