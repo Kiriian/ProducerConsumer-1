@@ -42,22 +42,13 @@ public class FibonacciMain
 //        ProducerThread p3 = new ProducerThread();
 //        ProducerThread p4 = new ProducerThread();
 //        ConsumerThread c1 = new ConsumerThread();
+//        
 //        p1.start();
 //        p2.start();
 //        p3.start();
 //        p4.start();
-//        
-//        try
-//        {
-//            p1.join();
-//            p2.join();
-//            p3.join();
-//            p4.join();
-//            c1.start();
-//        } catch (InterruptedException ex)
-//        {
-//            Logger.getLogger(FibonacciMain.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+//        c1.start();
+
         int numberOfThreads = sc.nextInt();
         numberOfThreads(numberOfThreads);
         c1.start();
@@ -74,15 +65,6 @@ public class FibonacciMain
         {
             threads[i] = new ProducerThread();
             threads[i].start();
-
-            try
-            {
-                threads[i].join();
-
-            } catch (InterruptedException ex)
-            {
-                Logger.getLogger(FibonacciMain.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
     }
 
@@ -100,6 +82,8 @@ public class FibonacciMain
     public static class ProducerThread extends Thread
     {
 
+        long start = System.currentTimeMillis();
+
         @Override
         public void run()
         {
@@ -109,34 +93,41 @@ public class FibonacciMain
                 {
                     long result = fib(s1.poll());
                     s2.put(result);
+
                 } catch (InterruptedException ex)
                 {
                     Logger.getLogger(FibonacciMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
+            long time = System.currentTimeMillis() - start;
+            System.out.println("Execution time: " + time);
         }
     }
 
     public static class ConsumerThread extends Thread
     {
 
+        long start = System.currentTimeMillis();
         int totalSum = 0;
+        int counter = 0;
 
         @Override
         public void run()
         {
             try
             {
-                while (!s2.isEmpty())
+                while (!s2.isEmpty() || counter < 11)
                 {
                     int number = s2.take().intValue();
 
                     totalSum = totalSum + number;
                     System.out.println(number);
+                    counter++;
                 }
 
                 System.out.println("Total sum: " + totalSum);
+                long time = System.currentTimeMillis() - start;
+                System.out.println("Execution time for c1: " + time);
 
             } catch (InterruptedException ex)
             {
